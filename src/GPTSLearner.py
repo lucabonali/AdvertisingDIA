@@ -20,6 +20,11 @@ class GPTSLearner(Learner):
         kernel = C(1.0, (1e-3, 1e3)) * RBF(1, (1e-3, 1e3))
         self.gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha ** 2, normalize_y=True, n_restarts_optimizer=9)
 
+    def _create_gp(self):
+        alpha = 10.0
+        kernel = C(1.0, (1e-3, 1e3)) * RBF(1, (1e-3, 1e3))
+        self.gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha ** 2, normalize_y=True, n_restarts_optimizer=9)
+
     def update_observations(self, arm_idx, reward):
         super(GPTSLearner, self).update_observations(arm_idx, reward)
         self.pulled_arms.append(self.arms[arm_idx])
@@ -31,7 +36,7 @@ class GPTSLearner(Learner):
         """
         x = np.atleast_2d(self.pulled_arms).T  # matrix where the first column is the pulled_arms list
         y = self.collected_rewards
-
+        self._create_gp()
         self.gp.fit(x, y)
         self.means, self.sigmas = self.gp.predict(np.atleast_2d(self.arms).T, return_std=True)
         self.sigmas = np.maximum(self.sigmas, 1e-2)

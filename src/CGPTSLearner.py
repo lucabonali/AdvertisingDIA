@@ -56,3 +56,20 @@ class CGPTSLearner:
             collected_rewards += sc.collected_rewards
 
         return collected_rewards
+
+    def get_samples(self, campaign_idx=0):
+        """
+        :param campaign_idx: index of the campaign
+        :return: pulled arms and their rewards -> x_obs, y_obs
+        """
+        assert 0 >= campaign_idx < self.n_sub_campaigns
+        return self.sub_campaigns[campaign_idx].pulled_arms, self.sub_campaigns[campaign_idx].collected_rewards
+
+    def predict(self, campaign_idx=0):
+        """
+        Make the curve prediction for the specified sub-campaign
+        :param campaign_idx:
+        :return: y_pred, sigma. @see GPTSLearner.predict()
+        """
+        assert 0 <= campaign_idx < self.n_sub_campaigns
+        return self.sub_campaigns[campaign_idx].means, self.sub_campaigns[campaign_idx].sigmas
