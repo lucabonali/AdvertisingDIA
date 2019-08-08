@@ -1,5 +1,5 @@
 import numpy as np
-from Learner import Learner
+from src.Learner import Learner
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 

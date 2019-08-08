@@ -1,7 +1,7 @@
 import numpy as np
-from BudgetEnvironment import BudgetEnvironment
-from CGPTSLearner import CGPTSLearner
-from GPTSLearner import GPTSLearner
+from src.BudgetEnvironment import BudgetEnvironment
+from src.CGPTSLearner import CGPTSLearner
+from src.GPTSLearner import GPTSLearner
 import matplotlib.pyplot as plt
 
 n_arms = 20
@@ -14,8 +14,8 @@ sigma = 10
 const_budget = 100
 n_sub_campaigns = 5
 
-T = 60
-n_experiments = 2
+T = 20
+n_experiments = 1
 
 cgpts_rewards_per_experiment = []
 
