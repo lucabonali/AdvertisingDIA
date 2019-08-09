@@ -1,15 +1,15 @@
 import numpy as np
-
+from .optimization import combinatorial_optimization
 
 class CGPTSLearner:
 
     """ Combinatorial Gaussian Process Thompson Sampling Learner """
 
-    def __init__(self, n_sub_campaigns, sub_campaigns):
-        assert n_sub_campaigns == len(sub_campaigns)
-        self.n_sub_campaigns = n_sub_campaigns
+    def __init__(self, sub_campaigns, budgets):
+        self.n_sub_campaigns = len(sub_campaigns)
         self.sub_campaigns = sub_campaigns  # list of GPTS learners
         self.sampled_values = None  # store for each sub-campaign one sample for each arm
+        self.budgets = budgets
         self.budget = 0
 
     def add_sub_campaign(self, new_sub_campaign):
@@ -25,21 +25,21 @@ class CGPTSLearner:
         :return: @see combinatorial_optimization
         """
         self.budget += new_budget
-        self.sampled_values = [[] for _ in range(self.n_sub_campaigns)]  #
+        sampled_values = [[] for _ in range(self.n_sub_campaigns)]  #
         for idx, gpts in enumerate(self.sub_campaigns):
-            self.sampled_values[idx] = gpts.pull_arms()
+            sampled_values[idx] = gpts.pull_arms()
 
-        return self.combinatorial_optimization()
+        return self.combinatorial_optimization(sampled_values)
 
-    def combinatorial_optimization(self):
+    def combinatorial_optimization(self, _input):
         """
         In according to the sampled values solve a combinatorial problem
         that finds one arm per sub-campaign such that maximize the rewards
         and such that satisfies the given budget
+        :param _input: NxM matrix, N number of sub-campaigns, M budgets
         :return: list of arm idx (1 per sub-campaign) founded by the combinatorial algorithm
         """
-        # TODO: change
-        return [np.argmax(r) for r in self.sampled_values]
+        return combinatorial_optimization(_input, self.budgets)
 
     def update(self, pulled_arms, rewards):
         for idx, pulled_arm in enumerate(pulled_arms):
