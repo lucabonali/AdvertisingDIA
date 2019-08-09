@@ -31,8 +31,8 @@ sigma = 2
 const_budget = 100
 n_sub_campaigns = 5
 
-T = 120
-n_experiments = 2
+T = 60
+n_experiments = 10
 
 cgpts_rewards_per_experiment = []
 errs_per_experiment = []
@@ -41,6 +41,7 @@ rewards_per_experiment = []
 if __name__ == '__main__':
     tot_time = time.time()
     for e in range(n_experiments):
+        print("Experiment #" + str(e + 1), end='')
         start_time = time.time()
 
         envs = [BudgetEnvironment(budgets, sigma) for _ in range(n_sub_campaigns)]
@@ -62,12 +63,12 @@ if __name__ == '__main__':
                 errs[sc].append(np.max(err))
 
             # make prediction for 1st sub-campaign
-            if e == 1 and (t % 3) == 0:
+            if False: #e == 1 and (t % 3) == 0:
                 y_preds, _ = cgpts.predict()
                 x_observ, y_observ = cgpts.get_samples()
                 plot_gp_regression(n_samples=t, x_pred=budgets, y_pred=y_preds, x_obs=x_observ, y_obs=y_observ)
 
-        print("Experiment #" + str(e + 1) + ": " + str(time.time() - start_time) + " sec")
+        print(": " + str(time.time() - start_time) + " sec")
 
         cgpts_rewards_per_experiment.append(cgpts.get_collected_rewards())
         errs_per_experiment.append(errs)
@@ -90,11 +91,11 @@ if __name__ == '__main__':
     opt = np.max(means)
     print(opt)
 
-    plt.figure(0)
+    plt.figure(1)
     plt.ylabel("Reward")
     plt.xlabel("t")
-    plt.plot(opt, 'r')
-    plt.plot(np.mean(cgpts_rewards_per_experiment), 'g')
+    plt.plot(np.ones(shape=T) * opt, 'r')
+    plt.plot(np.mean(cgpts_rewards_per_experiment, axis=0), 'g')
     plt.legend(["Clairvoyant", "CGPTS"], loc="best")
     plt.show()
 
