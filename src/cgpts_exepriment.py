@@ -1,10 +1,27 @@
+import time
 import numpy as np
 from src.BudgetEnvironment import BudgetEnvironment
 from src.CGPTSLearner import CGPTSLearner
 from src.GPTSLearner import GPTSLearner
 import matplotlib.pyplot as plt
 
-n_arms = 20
+
+def plot_gp_regression(n_samples, x_pred, y_pred, x_obs, y_obs):
+    plt.figure(n_samples)
+
+    plt.plot(x_pred, envs[0].true_func(x_pred), 'r:', label=r'$n(x)$')
+    plt.plot(np.atleast_2d(x_obs).T.ravel().ravel(), y_obs.ravel(), 'ro', label=u'Observed Clicks')
+    plt.plot(x_pred, y_pred, 'b-', label=u'Predicted Clicks')
+    plt.fill(np.concatenate([x_pred, x_pred[::-1]]),
+             np.concatenate([y_pred - 1.96 * sigma, (y_pred + 1.96 * sigma)[::-1]]),
+             alpha=.5, fc='b', ec='None', label='95% conf interval')
+    plt.xlabel('$x$')
+    plt.ylabel('$n(x)$')
+    plt.legend(loc='lower right')
+    plt.show()
+
+
+n_arms = 10
 min_budget = 0.0
 max_budget = 1.0
 
@@ -14,15 +31,16 @@ sigma = 2
 const_budget = 100
 n_sub_campaigns = 5
 
-T = 40
+T = 120
 n_experiments = 2
 
 cgpts_rewards_per_experiment = []
 errs_per_experiment = []
 
 if __name__ == '__main__':
+    tot_time = time.time()
     for e in range(n_experiments):
-        print("Experiment #" + str(e+1))
+        start_time = time.time()
 
         envs = [BudgetEnvironment(budgets, sigma) for _ in range(n_sub_campaigns)]
         sub_campaigns = [GPTSLearner(n_arms, arms=budgets) for _ in range(n_sub_campaigns)]
@@ -43,25 +61,17 @@ if __name__ == '__main__':
                 errs[sc].append(np.max(err))
 
             # make prediction for 1st sub-campaign
-            if False: #e == 2 and (t % 3) == 0:
-                y_pred, sigma = cgpts.predict()
-                x_obs, y_obs = cgpts.get_samples()
-                x_pred = budgets
+            if e == 1 and (t % 3) == 0:
+                y_preds, _ = cgpts.predict()
+                x_observ, y_observ = cgpts.get_samples()
+                plot_gp_regression(n_samples=t, x_pred=budgets, y_pred=y_preds, x_obs=x_observ, y_obs=y_observ)
 
-                plt.figure(t)
-                plt.plot(x_pred, envs[0].true_func(x_pred), 'r:', label=r'$n(x)$')
-                plt.plot(np.atleast_2d(x_obs).T.ravel().ravel(), y_obs.ravel(), 'ro', label=u'Observed Clicks')
-                plt.plot(x_pred, y_pred, 'b-', label=u'Predicted Clicks')
-                plt.fill(np.concatenate([x_pred, x_pred[::-1]]),
-                         np.concatenate([y_pred - 1.96 * sigma, (y_pred + 1.96 * sigma)[::-1]]),
-                         alpha=.5, fc='b', ec='None', label='95% conf interval')
-                plt.xlabel('$x$')
-                plt.ylabel('$n(x)$')
-                plt.legend(loc='lower right')
-                plt.show()
+        print("Experiment #" + str(e + 1) + ": " + str(time.time() - start_time) + " sec")
 
         cgpts_rewards_per_experiment.append(cgpts.get_collected_rewards())
         errs_per_experiment.append(errs)
+
+    print("Algorithm ended in {:.2f} sec.".format(time.time() - tot_time))
 
     plt.figure(0)
     plt.ylabel("Regression Error")
