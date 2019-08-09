@@ -25,15 +25,14 @@ n_arms = 10
 min_budget = 0
 max_budget = 10
 
-budgets = np.linspace(min_budget, max_budget, n_arms)
 budgets = np.array([0,1,2,3,4,5,6,7,8,9])
 sigma = 2
 
 const_budget = 100
 n_sub_campaigns = 5
 
-T = 30
-n_experiments = 1
+T = 40
+n_experiments = 10
 
 cgpts_rewards_per_experiment = []
 errs_per_experiment = []
@@ -64,7 +63,7 @@ if __name__ == '__main__':
                 errs[sc].append(np.max(err))
 
             # make prediction for 1st sub-campaign
-            if False: #e == 1 and (t % 3) == 0:
+            if e == 1 and (t % 3) == 0:
                 y_preds, _ = cgpts.predict()
                 x_observ, y_observ = cgpts.get_samples()
                 plot_gp_regression(n_samples=t, x_pred=budgets, y_pred=y_preds, x_obs=x_observ, y_obs=y_observ)
