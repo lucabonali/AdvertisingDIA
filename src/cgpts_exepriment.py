@@ -36,6 +36,7 @@ n_experiments = 2
 
 cgpts_rewards_per_experiment = []
 errs_per_experiment = []
+rewards_per_experiment = []
 
 if __name__ == '__main__':
     tot_time = time.time()
@@ -88,10 +89,19 @@ if __name__ == '__main__':
         means += np.array(env.means)
     opt = np.max(means)
     print(opt)
+
+    plt.figure(0)
+    plt.ylabel("Reward")
+    plt.xlabel("t")
+    plt.plot(opt, 'r')
+    plt.plot(np.mean(cgpts_rewards_per_experiment), 'g')
+    plt.legend(["Clairvoyant", "CGPTS"], loc="best")
+    plt.show()
+
     # plot regret analysis of the model
     plt.figure(0)
     plt.ylabel("Regret")
     plt.xlabel("t")
     plt.plot(np.cumsum(np.mean(opt - cgpts_rewards_per_experiment, axis=0)), 'g')
-    plt.legend(["CGPTS"])
+    plt.legend(["CGPTS"], loc="best")
     plt.show()
