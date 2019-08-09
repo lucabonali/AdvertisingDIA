@@ -11,7 +11,7 @@ def partition(number):
 
 
 def partitions(number):
-    tmp = list(map(lambda y: (y[0], 0) if len(y)==1 else y,list(filter(lambda x: len(x) <= 2, partition(number)))))
+    tmp = list(map(lambda y: (y[0], 0) if len(y) == 1 else y, list(filter(lambda x: len(x) <= 2, partition(int(number))))))
     result = []
 
     for t1, t2 in tmp:
@@ -20,6 +20,16 @@ def partitions(number):
             result.append((t2,t1))
 
     return result
+
+
+class Cell:
+
+    def __init__(self, val, part):
+        self.val = val
+        self.part = part
+
+    def __str__(self):
+        return "(" + str(self.val) + ", " + str(self.part) + ")"
 
 
 def combinatorial_optimization(_input, budgets):
@@ -34,34 +44,42 @@ def combinatorial_optimization(_input, budgets):
 
     rows = len(_input)
     cols = len(_input[0])
-    opt_matrix = np.zeros(shape=(rows, cols))
+    opt_matrix = [[Cell(0, (0, 0)) for _ in range(cols)] for _ in range(rows)]
 
     # initialize the first row
-    opt_matrix[0] = np.array((v,) for v in _input[0])
+    for i, b in enumerate(budgets):
+        opt_matrix[0][i] = Cell(_input[0][i], (0, int(b)))
+
+    #for elm in opt_matrix:
+    #    for v in elm:
+    #        print(v.__str__())
 
     for campaign_idx in range(1, rows):
         for col, b in enumerate(budgets):
             # b -> current budget
-            values = [(opt_matrix[campaign_idx-1, budgets.index(part[0])] + _input[campaign_idx][part[1]], part) for part in partitions(b)]
+            values = [(opt_matrix[campaign_idx-1][budgets.index(part[0])].val + _input[campaign_idx][part[1]], part) for part in partitions(b)]
             _max = 0
             _part = ()
             # select the partition that has the highest reward
             for v, p in values:
                 if v > _max:
                     _max, _part = v, p
-            opt_matrix[campaign_idx, col] = (_max, _part)
+            opt_matrix[campaign_idx][col] = Cell(_max, _part)
 
     # compute the best reward using all sub-campaigns
     best = 0
     best_part = ()
-    for v, p in opt_matrix[rows-1]:
+    for cell in opt_matrix[rows-1]:
+        v, p = cell.val, cell.part
         if v > best:
             best, best_part = v, p
 
-    arm_idx = [best_part[1]]
-    for i in range(0, rows-1)[::-1]:
-        _, p = opt_matrix[i, best_part[0]]
-        arm_idx.append(p[1])
+    arms = [best_part[1]]
+    for i in range(1, rows-1)[::-1]:
+        cur = opt_matrix[i][best_part[0]]
+        _, p = cur.val, cur.part
+        arms.append(p[1])
         best_part = p
 
-    return [budgets.index(arm) for arm in arm_idx[::-1]]
+    arms.append(best_part[0])
+    return [budgets.index(arm) for arm in arms[::-1]]

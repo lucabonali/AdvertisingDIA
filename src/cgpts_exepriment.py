@@ -22,17 +22,18 @@ def plot_gp_regression(n_samples, x_pred, y_pred, x_obs, y_obs):
 
 
 n_arms = 10
-min_budget = 0.0
-max_budget = 1.0
+min_budget = 0
+max_budget = 10
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
+budgets = np.array([0,1,2,3,4,5,6,7,8,9])
 sigma = 2
 
 const_budget = 100
 n_sub_campaigns = 5
 
-T = 60
-n_experiments = 10
+T = 30
+n_experiments = 1
 
 cgpts_rewards_per_experiment = []
 errs_per_experiment = []
@@ -46,7 +47,7 @@ if __name__ == '__main__':
 
         envs = [BudgetEnvironment(budgets, sigma) for _ in range(n_sub_campaigns)]
         sub_campaigns = [GPTSLearner(n_arms, arms=budgets) for _ in range(n_sub_campaigns)]
-        cgpts = CGPTSLearner(n_sub_campaigns, sub_campaigns)
+        cgpts = CGPTSLearner(sub_campaigns, budgets)
 
         errs = [[] for _ in range(n_sub_campaigns)]
 
