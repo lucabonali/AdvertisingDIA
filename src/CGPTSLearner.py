@@ -63,7 +63,7 @@ class CGPTSLearner:
         :param campaign_idx: index of the campaign
         :return: pulled arms and their rewards -> x_obs, y_obs
         """
-        assert 0 >= campaign_idx < self.n_sub_campaigns
+        assert 0 <= campaign_idx < self.n_sub_campaigns
         return self.sub_campaigns[campaign_idx].pulled_arms, self.sub_campaigns[campaign_idx].collected_rewards
 
     def predict(self, campaign_idx=0):

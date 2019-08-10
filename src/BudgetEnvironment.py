@@ -1,20 +1,11 @@
 import numpy as np
 
 
-def n(x):
-    # The true function to estimate
-    return (1.0 - np.exp(-5.0*x)) * 100
-
-
-def fun(x):
-    return (100 * (1.0 - np.exp(-4 * x + 3 * x ** 3))) / 5
-
-
 class BudgetEnvironment:
 
-    def __init__(self, budgets, sigma):
+    def __init__(self, budgets, sigma, function):
         self.budgets = budgets
-        self.realfunc = n
+        self.realfunc = function
         self.means = self.realfunc(budgets)
         self.sigmas = np.ones(len(budgets)) * sigma
 

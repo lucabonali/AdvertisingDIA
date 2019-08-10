@@ -23,11 +23,19 @@ def partitions(number):
 class Cell:
 
     def __init__(self, val, part):
-        self.val = val
+        self.val = round(val, 0)
         self.part = part
 
     def __str__(self):
         return "(" + str(self.val) + ", " + str(self.part) + ")"
+
+
+def print_matrix(rows, cols, matrix):
+    for r in range(rows):
+        for c in range(cols):
+            print(matrix[r][c].part, end='')
+            print("--", end='')
+        print("\n")
 
 
 def get_optimized_reward(rewards_matrix, budgets):
@@ -60,20 +68,23 @@ def combinatorial_optimization(_input, budgets):
         for col, b in enumerate(budgets):
             # b -> current budget
             values = [(opt_matrix[campaign_idx-1][budgets.index(part[0])].val + _input[campaign_idx][part[1]], part) for part in partitions(b)]
-            _max = 0
-            _part = ()
+            _max = values[0][0]
+            _part = values[0][1]
             # select the partition that has the highest reward
             for v, p in values:
-                if v > _max:
+                if v >= _max:
                     _max, _part = v, p
             opt_matrix[campaign_idx][col] = Cell(_max, _part)
 
     # compute the best reward using all sub-campaigns
     best = 0
-    best_part = ()
+    best_part = opt_matrix[rows-1][0].part
+
+    #print_matrix(rows, cols, opt_matrix)
+
     for cell in opt_matrix[rows-1]:
         v, p = cell.val, cell.part
-        if v > best:
+        if v >= best:
             best, best_part = v, p
 
     arms_values = [best_part[1]]

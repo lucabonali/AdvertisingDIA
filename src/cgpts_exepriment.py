@@ -5,25 +5,28 @@ from src.CGPTSLearner import CGPTSLearner
 from src.GPTSLearner import GPTSLearner
 from src.optimization import get_optimized_reward, get_optimized_arms
 
+import src.curves as curves
 import src.plotting as pl
 
-n_arms = 10
+n_arms = 20
 min_budget = 0
-max_budget = 9
+max_budget = 19
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
-sigma = 2
+sigma = 0.3
 
 const_budget = 100
 n_sub_campaigns = 5
 
-T = 40
-n_experiments = 2
+T = 20
+n_experiments = 1
 
 cgpts_rewards_per_experiment = []
 errs_per_experiment = []
 rewards_per_experiment = []
 envs = None
+
+true_functions = [curves.true, curves.true2, curves.true3, curves.true, curves.true2]
 
 if __name__ == '__main__':
     tot_time = time.time()
@@ -31,7 +34,7 @@ if __name__ == '__main__':
         print("Experiment #" + str(e + 1), end='')
         start_time = time.time()
 
-        envs = [BudgetEnvironment(budgets, sigma) for _ in range(n_sub_campaigns)]
+        envs = [BudgetEnvironment(budgets, sigma, tr) for tr in true_functions]
         sub_campaigns = [GPTSLearner(n_arms, arms=budgets) for _ in range(n_sub_campaigns)]
         cgpts = CGPTSLearner(sub_campaigns, budgets)
 
@@ -50,10 +53,11 @@ if __name__ == '__main__':
                 errs[sc].append(np.max(err))
 
             # make prediction for 1st sub-campaign
-            if e == 1 and (t % 5) == 0:
-                y_preds, _ = cgpts.predict()
-                x_observ, y_observ = cgpts.get_samples()
-                pl.plot_gp_regression(n_samples=t, x_pred=budgets, y_pred=y_preds, x_obs=x_observ, y_obs=y_observ, sigma=sigma, true_function=envs[0].realfunc)
+            if e == 0 and t==T-1:#(t % 5) == 0:
+                for c in range(n_sub_campaigns):
+                    y_preds, _ = cgpts.predict(c)
+                    x_observ, y_observ = cgpts.get_samples(c)
+                    pl.plot_gp_regression(n_samples=c, x_pred=budgets, y_pred=y_preds, x_obs=x_observ, y_obs=y_observ, sigma=sigma, true_function=envs[0].realfunc)
 
         print(": " + str(time.time() - start_time) + " sec")
 
