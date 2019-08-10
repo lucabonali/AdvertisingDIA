@@ -13,10 +13,10 @@ def fun(x):
 class BudgetEnvironment:
 
     def __init__(self, budgets, sigma):
-        self.bids = budgets
-        self.means = n(budgets)
+        self.budgets = budgets
+        self.realfunc = n
+        self.means = self.realfunc(budgets)
         self.sigmas = np.ones(len(budgets)) * sigma
-        self.true_func = n
 
     def round(self, pulled_arm):
         return np.random.normal(self.means[pulled_arm], self.sigmas[pulled_arm])

@@ -3,40 +3,27 @@ import numpy as np
 from src.BudgetEnvironment import BudgetEnvironment
 from src.CGPTSLearner import CGPTSLearner
 from src.GPTSLearner import GPTSLearner
-import matplotlib.pyplot as plt
+from src.optimization import get_optimized_reward, get_optimized_arms
 
-
-def plot_gp_regression(n_samples, x_pred, y_pred, x_obs, y_obs):
-    plt.figure(n_samples)
-
-    plt.plot(x_pred, envs[0].true_func(x_pred), 'r:', label=r'$n(x)$')
-    plt.plot(np.atleast_2d(x_obs).T.ravel().ravel(), y_obs.ravel(), 'ro', label=u'Observed Clicks')
-    plt.plot(x_pred, y_pred, 'b-', label=u'Predicted Clicks')
-    plt.fill(np.concatenate([x_pred, x_pred[::-1]]),
-             np.concatenate([y_pred - 1.96 * sigma, (y_pred + 1.96 * sigma)[::-1]]),
-             alpha=.5, fc='b', ec='None', label='95% conf interval')
-    plt.xlabel('$x$')
-    plt.ylabel('$n(x)$')
-    plt.legend(loc='lower right')
-    plt.show()
-
+import src.plotting as pl
 
 n_arms = 10
 min_budget = 0
-max_budget = 10
+max_budget = 9
 
-budgets = np.array([0,1,2,3,4,5,6,7,8,9])
+budgets = np.linspace(min_budget, max_budget, n_arms)
 sigma = 2
 
 const_budget = 100
 n_sub_campaigns = 5
 
 T = 40
-n_experiments = 10
+n_experiments = 2
 
 cgpts_rewards_per_experiment = []
 errs_per_experiment = []
 rewards_per_experiment = []
+envs = None
 
 if __name__ == '__main__':
     tot_time = time.time()
@@ -58,15 +45,15 @@ if __name__ == '__main__':
             # GP regression errors
             for sc in range(n_sub_campaigns):
                 p, _ = cgpts.predict(sc)
-                v = envs[sc].true_func(budgets)
+                v = envs[sc].realfunc(budgets)
                 err = np.abs(v - p)
                 errs[sc].append(np.max(err))
 
             # make prediction for 1st sub-campaign
-            if e == 1 and (t % 3) == 0:
+            if e == 1 and (t % 5) == 0:
                 y_preds, _ = cgpts.predict()
                 x_observ, y_observ = cgpts.get_samples()
-                plot_gp_regression(n_samples=t, x_pred=budgets, y_pred=y_preds, x_obs=x_observ, y_obs=y_observ)
+                pl.plot_gp_regression(n_samples=t, x_pred=budgets, y_pred=y_preds, x_obs=x_observ, y_obs=y_observ, sigma=sigma, true_function=envs[0].realfunc)
 
         print(": " + str(time.time() - start_time) + " sec")
 
@@ -75,34 +62,22 @@ if __name__ == '__main__':
 
     print("Algorithm ended in {:.2f} sec.".format(time.time() - tot_time))
 
-    plt.figure(0)
-    plt.ylabel("Regression Error")
-    plt.xlabel("Samples")
-    colors = ["", "", "", "", ""]
-    mean_errs = np.mean(errs_per_experiment, axis=0)
-    for sc in range(n_sub_campaigns):
-        plt.plot(mean_errs[sc])
-    plt.legend([str(x+1) for x in range(n_sub_campaigns)], loc="best")
-    plt.show()
+    pl.plot_regression_error(errs_per_experiment, n_sub_campaigns)
 
+    """
     means = np.zeros(shape=len(envs[0].means))
     for env in envs:
         means += np.array(env.means)
     opt = np.max(means)
-    print(opt)
+    """
 
-    plt.figure(1)
-    plt.ylabel("Reward")
-    plt.xlabel("t")
-    plt.plot(np.ones(shape=T) * opt, 'r')
-    plt.plot(np.mean(cgpts_rewards_per_experiment, axis=0), 'g')
-    plt.legend(["Clairvoyant", "CGPTS"], loc="best")
-    plt.show()
+    # compute the optimum
+    assert envs is not None
+    true_rewards = [env.realfunc(budgets).tolist() for idx, env in enumerate(envs)]
+    opt = get_optimized_reward(true_rewards, budgets.tolist())
+    print("optimum: " + str(opt))
 
-    # plot regret analysis of the model
-    plt.figure(0)
-    plt.ylabel("Regret")
-    plt.xlabel("t")
-    plt.plot(np.cumsum(np.mean(opt - cgpts_rewards_per_experiment, axis=0)), 'g')
-    plt.legend(["CGPTS"], loc="best")
-    plt.show()
+    print(get_optimized_arms(true_rewards, budgets.tolist()))
+
+    pl.plot_rewards(rewards_per_experiment=cgpts_rewards_per_experiment, opt=opt, n_samples=T)
+    pl.plot_regret(rewards_per_experiment=np.array(cgpts_rewards_per_experiment), opt=opt)

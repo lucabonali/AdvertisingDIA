@@ -1,5 +1,3 @@
-import numpy as np
-
 
 def partition(number):
     answer = set()
@@ -32,6 +30,14 @@ class Cell:
         return "(" + str(self.val) + ", " + str(self.part) + ")"
 
 
+def get_optimized_reward(rewards_matrix, budgets):
+    return combinatorial_optimization(rewards_matrix, budgets)[1]
+
+
+def get_optimized_arms(rewards_matrix, budgets):
+    return combinatorial_optimization(rewards_matrix, budgets)[0]
+
+
 def combinatorial_optimization(_input, budgets):
     """
     In according to the sampled values solve a combinatorial problem
@@ -49,10 +55,6 @@ def combinatorial_optimization(_input, budgets):
     # initialize the first row
     for i, b in enumerate(budgets):
         opt_matrix[0][i] = Cell(_input[0][i], (0, int(b)))
-
-    #for elm in opt_matrix:
-    #    for v in elm:
-    #        print(v.__str__())
 
     for campaign_idx in range(1, rows):
         for col, b in enumerate(budgets):
@@ -74,12 +76,12 @@ def combinatorial_optimization(_input, budgets):
         if v > best:
             best, best_part = v, p
 
-    arms = [best_part[1]]
+    arms_values = [best_part[1]]
     for i in range(1, rows-1)[::-1]:
         cur = opt_matrix[i][best_part[0]]
         _, p = cur.val, cur.part
-        arms.append(p[1])
+        arms_values.append(p[1])
         best_part = p
 
-    arms.append(best_part[0])
-    return [budgets.index(arm) for arm in arms[::-1]]
+    arms_values.append(best_part[0])
+    return [budgets.index(val) for val in arms_values[::-1]], best

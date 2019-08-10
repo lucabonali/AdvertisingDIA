@@ -1,5 +1,5 @@
 import numpy as np
-from .optimization import combinatorial_optimization
+from .optimization import get_optimized_arms
 
 
 class CGPTSLearner:
@@ -40,7 +40,7 @@ class CGPTSLearner:
         :param _input: NxM matrix, N number of sub-campaigns, M budgets
         :return: list of arm idx (1 per sub-campaign) founded by the combinatorial algorithm
         """
-        return combinatorial_optimization(_input, self.budgets.tolist())
+        return get_optimized_arms(_input, self.budgets.tolist())
 
     def update(self, pulled_arms, rewards):
         for idx, pulled_arm in enumerate(pulled_arms):
