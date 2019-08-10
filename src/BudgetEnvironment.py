@@ -6,7 +6,7 @@ class BudgetEnvironment:
     def __init__(self, budgets, sigma, function):
         self.budgets = budgets
         self.realfunc = function
-        self.means = self.realfunc(budgets)
+        self.means = function(budgets)
         self.sigmas = np.ones(len(budgets)) * sigma
 
     def round(self, pulled_arm):

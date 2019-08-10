@@ -18,8 +18,8 @@ sigma = 0.3
 const_budget = 100
 n_sub_campaigns = 5
 
-T = 20
-n_experiments = 1
+T = 120
+n_experiments = 3
 
 cgpts_rewards_per_experiment = []
 errs_per_experiment = []
@@ -27,6 +27,8 @@ rewards_per_experiment = []
 envs = None
 
 true_functions = [curves.true, curves.true2, curves.true3, curves.true, curves.true2]
+#true_functions = [curves.true, curves.true, curves.true, curves.true, curves.true]
+#true_functions = [curves.n, curves.n, curves.n, curves.n, curves.n]
 
 if __name__ == '__main__':
     tot_time = time.time()
@@ -54,10 +56,10 @@ if __name__ == '__main__':
 
             # make prediction for 1st sub-campaign
             if e == 0 and t==T-1:#(t % 5) == 0:
-                for c in range(n_sub_campaigns):
-                    y_preds, _ = cgpts.predict(c)
-                    x_observ, y_observ = cgpts.get_samples(c)
-                    pl.plot_gp_regression(n_samples=c, x_pred=budgets, y_pred=y_preds, x_obs=x_observ, y_obs=y_observ, sigma=sigma, true_function=envs[0].realfunc)
+                for idx, env in enumerate(envs):
+                    y_preds, _ = cgpts.predict(idx)
+                    x_observ, y_observ = cgpts.get_samples(idx)
+                    pl.plot_gp_regression(n_samples=idx, x_pred=budgets, y_pred=y_preds, x_obs=x_observ, y_obs=y_observ, sigma=sigma, true_function=env.realfunc)
 
         print(": " + str(time.time() - start_time) + " sec")
 

@@ -14,18 +14,28 @@ def fun(x):
     return (100 * (1.0 - np.exp(-4 * x + 3 * x ** 3))) / 5
 
 
-def true(x):
-    val = (1.0 - np.exp(9. - 1. * x)) * 30
+def true1(x):
+    val = (1.0 - np.exp(3. - 1. * x)) * 15
     return np.array(list(map(lambda v: v if v >= 0.0 else 0.0, val.tolist())))
 
 
 def true2(x):
-    val = (1.0 - np.exp(0.5 - 0.5 * x)) * 10
+    val = (1.0 - np.exp(0.5 - 0.1 * x)) * 10
     return np.array(list(map(lambda v: v if v >= 0.0 else 0.0, val.tolist())))
 
 
 def true3(x):
-    val = (1.0 - np.exp(0.2 - 0.5 * x)) * 50
+    val = (1.0 - np.exp(20. - 1. * x)) * 40
+    return np.array(list(map(lambda v: v if v >= 0.0 else 0.0, val.tolist())))
+
+
+def true4(x):
+    val = (1.0 - np.exp(0.08 - 0.05 * x)) * 10
+    return np.array(list(map(lambda v: v if v >= 0.0 else 0.0, val.tolist())))
+
+
+def true5(x):
+    val = (1.0 - np.exp(0.1 - 0.2 * x)) * 20
     return np.array(list(map(lambda v: v if v >= 0.0 else 0.0, val.tolist())))
 
 
