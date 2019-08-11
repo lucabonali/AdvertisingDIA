@@ -1,12 +1,15 @@
 import numpy as np
-from .optimization import get_optimized_arms
+from src.GPTSLearner import GPTSLearner
+from src.optimization import get_optimized_arms
+from typing import List
 
 
 class CGPTSLearner:
 
     """ Combinatorial Gaussian Process Thompson Sampling Learner """
 
-    def __init__(self, sub_campaigns, budgets):
+    def __init__(self, name, sub_campaigns: List[GPTSLearner], budgets):
+        self.name = name
         self.n_sub_campaigns = len(sub_campaigns)
         self.sub_campaigns = sub_campaigns  # list of GPTS learners
         self.sampled_values = None  # store for each sub-campaign one sample for each arm
@@ -17,7 +20,7 @@ class CGPTSLearner:
         self.sub_campaigns.append(new_sub_campaign)
         self.n_sub_campaigns += 1
 
-    def pull_arms(self, new_budget):
+    def pull_arms(self, new_budget=0):
         """
         Pull all arms of all sub-campaign and then apply a combinatorial algorithms
         in order to find the best set of arm, one per each sub-campaign that satisfies
@@ -66,7 +69,7 @@ class CGPTSLearner:
         assert 0 <= campaign_idx < self.n_sub_campaigns
         return self.sub_campaigns[campaign_idx].pulled_arms, self.sub_campaigns[campaign_idx].collected_rewards
 
-    def predict(self, campaign_idx=0):
+    def get_predictions(self, campaign_idx=0):
         """
         Make the curve prediction for the specified sub-campaign
         :param campaign_idx:

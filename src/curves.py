@@ -1,8 +1,8 @@
 import numpy as np
 
-HIGH = 30
-MEDIUM = 20
-LOW = 10
+HIGH = 45
+MEDIUM = 30
+LOW = 15
 
 
 def n(x):
@@ -12,6 +12,26 @@ def n(x):
 
 def fun(x):
     return (100 * (1.0 - np.exp(-4 * x + 3 * x ** 3))) / 5
+
+
+def filter0(val):
+    return np.array(list(map(lambda v: v if v >= 0.0 else 0.0, val.tolist())))
+
+
+# START: Google channel classes
+
+def google_c1(x):
+    return filter0(1.0 - np.exp(3. - 1. * x)) * HIGH
+
+
+def google_c2(x):
+    return filter0(1.0 - np.exp(0.4 - 0.15 * x)) * MEDIUM
+
+
+def google_c3(x):
+    return filter0(LOW / (1 + np.exp(5. - 0.5 * x)))
+
+# END: Google channel classes
 
 
 def true1(x):

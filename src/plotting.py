@@ -26,6 +26,30 @@ def plot_regret(rewards_per_experiment, opt):
     plt.show()
 
 
+def plot_multiple_regret(rewards_per_cgpts_per_experiment, opt, names):
+    # plot regret analysis of the model
+    plt.figure(0)
+    plt.ylabel("Regret")
+    plt.xlabel("t")
+    for rewards_per_experiment in rewards_per_cgpts_per_experiment:
+        plt.plot(np.cumsum(np.mean(opt - rewards_per_experiment, axis=0)))
+    plt.legend(names, loc="best")
+    plt.show()
+
+
+def plot_multiple_rewards(rewards_per_cgpts_per_experiment, opt, n_samples, _names):
+    names = ["Clairvoyant"]
+    names.extend(_names)
+    plt.figure(0)
+    plt.ylabel("Reward")
+    plt.xlabel("t")
+    plt.plot(np.ones(shape=n_samples) * opt, 'r')
+    for rewards_per_experiment in rewards_per_cgpts_per_experiment:
+        plt.plot(np.mean(rewards_per_experiment, axis=0))
+    plt.legend(names, loc="best")
+    plt.show()
+
+
 def plot_rewards(rewards_per_experiment, opt, n_samples):
     plt.figure(0)
     plt.ylabel("Reward")

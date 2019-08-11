@@ -1,5 +1,6 @@
 import numpy as np
 from src.Learner import Learner
+from src.BudgetEnvironment import BudgetEnvironment
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
@@ -10,12 +11,13 @@ class GPTSLearner(Learner):
     Gaussian Process Thompson Sampling Learner
     """
 
-    def __init__(self, n_arms, arms):
+    def __init__(self, n_arms, arms, env: BudgetEnvironment):
         super(GPTSLearner, self).__init__(n_arms)
         self.arms = arms
         self.means = np.zeros(n_arms)
         self.sigmas = np.ones(n_arms) * 10
         self.pulled_arms = []
+        self.env = env
         self._create_gp()
 
     def _create_gp(self):
