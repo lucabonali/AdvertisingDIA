@@ -3,7 +3,7 @@ from typing import List
 
 import numpy as np
 
-import src.curves as curves
+import src.data as curves
 import src.plotting as plotting
 from src.BudgetEnvironment import BudgetEnvironment
 from src.CGPTSLearner import CGPTSLearner

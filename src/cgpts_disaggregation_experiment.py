@@ -3,12 +3,12 @@ from typing import List
 
 import numpy as np
 
-import src.curves as curves
+import src.data as curves
 import src.plotting as plotting
 from src.BudgetEnvironment import BudgetEnvironment
 from src.CGPTSLearner import CGPTSLearner
 from src.GPTSLearner import GPTSLearner
-from src.curves import p_c1, p_c2, p_c3
+from src.data import p_c1, p_c2, p_c3
 from src.optimization import combinatorial_optimization
 
 n_arms = 20

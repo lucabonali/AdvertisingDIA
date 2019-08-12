@@ -7,7 +7,7 @@ from src.optimization import get_optimized_reward, get_optimized_arms, combinato
 from typing import List
 
 import src.plotting as plotting
-import src.curves as curves
+import src.data as curves
 
 
 def initialize_cgpts():
