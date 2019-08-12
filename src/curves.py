@@ -1,8 +1,10 @@
 import numpy as np
 
-HIGH = 45
-MEDIUM = 30
-LOW = 15
+HIGH = 90
+MEDIUM = 60
+LOW = 40
+
+p_c1, p_c2, p_c3 = 0.5, 0.4, 0.1
 
 
 def n(x):
@@ -30,6 +32,10 @@ def google_c2(x):
 
 def google_c3(x):
     return filter0(LOW / (1 + np.exp(5. - 0.5 * x)))
+
+
+def google_agg(x):
+    return (google_c1(x) * p_c1) + (google_c2(x) * p_c2) + (google_c3(x) * p_c3)
 
 # END: Google channel classes
 

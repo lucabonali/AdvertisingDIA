@@ -8,22 +8,26 @@ import src.plotting as plotting
 from src.BudgetEnvironment import BudgetEnvironment
 from src.CGPTSLearner import CGPTSLearner
 from src.GPTSLearner import GPTSLearner
+from src.curves import p_c1, p_c2, p_c3
 from src.optimization import combinatorial_optimization
 
 n_arms = 20
 min_budget = 0
 max_budget = 19
 
-T = 80
-n_experiments = 3
+T = 5
+n_experiments = 1
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
-sigma = 5.0
+sigma_high = 5.0
+sigma_medium = 2.5
+sigma_low = 1.0
 
 cgpts_rewards_per_experiment = []
 errs_per_experiment = []
 
 sub_campaigns = []
+ctc = 0  # Index of the sub_campaign that has to be checked for disaggregation
 
 if __name__ == '__main__':
     tot_time = time.time()
@@ -32,11 +36,19 @@ if __name__ == '__main__':
         start_time = time.time()
 
         sub_campaigns: List[GPTSLearner] = [
-            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_agg)),
-            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.true2)),
-            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.true3)),
-            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.true4)),
-            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.true5))
+            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma_high, curves.google_agg)),
+            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma_high, curves.true2)),
+            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma_high, curves.true3)),
+            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma_high, curves.true4)),
+            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma_high, curves.true5))
+        ]
+
+        bench: List[CGPTSLearner] = [
+            CGPTSLearner(name="CGPTS_disagg", budgets=budgets, sub_campaigns=[
+                GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma_high, curves.google_c1)),
+                GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma_high, curves.google_c2)),
+                GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma_high, curves.google_c3))
+            ])
         ]
 
         cgpts = CGPTSLearner("CGPTS", sub_campaigns, budgets)
@@ -46,6 +58,11 @@ if __name__ == '__main__':
             pulled_arms = cgpts.pull_arms()
             rewards = [sub_campaigns[idx].env.round(arm) for idx, arm in enumerate(pulled_arms)]
             cgpts.update(pulled_arms, rewards)
+
+            for bench_cgpts in bench:
+                bench_pulled_arms = [pulled_arms[ctc]] * bench_cgpts.n_sub_campaigns
+                bench_rewards = np.array([p_c1, p_c2, p_c3]) * rewards[ctc]
+                bench_cgpts.update(pulled_arms=bench_pulled_arms, rewards=bench_rewards)
 
             for idx, sub_campaign in enumerate(sub_campaigns):
                 y_pred = sub_campaign.means
@@ -57,7 +74,7 @@ if __name__ == '__main__':
                     plotting.plot_gp_regression(n_samples=t,
                                                 x_pred=budgets, y_pred=y_pred,
                                                 x_obs=x_obs, y_obs=y_obs,
-                                                sigma=sigma,
+                                                sigma=sigma_high,
                                                 true_function=sub_campaign.env.realfunc)
 
         print(": {:.2f} sec".format(time.time() - start_time))
