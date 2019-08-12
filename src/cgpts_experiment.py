@@ -14,8 +14,9 @@ n_arms = 20
 min_budget = 0
 max_budget = 19
 
-T = 2
-n_experiments = 1
+T = 50
+n_experiments = 10
+# 100 x 100 -> ~ 11 hours
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
 sigma = 5.0
@@ -53,7 +54,7 @@ if __name__ == '__main__':
                 true = sub_campaign.env.realfunc(budgets)
                 errs[idx].append(np.max(np.abs(true - y_pred)))
 
-                if t == T-1:
+                if e == round(n_experiments/2) and t == T-1:
                     x_obs, y_obs = sub_campaign.pulled_arms, sub_campaign.collected_rewards
                     plotting.plot_gp_regression(n_samples=t,
                                                 x_pred=budgets, y_pred=y_pred,
