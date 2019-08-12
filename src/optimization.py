@@ -53,7 +53,7 @@ def combinatorial_optimization(_input, budgets):
     and such that satisfies the given budget
     :param _input: NxM matrix, N number of sub-campaigns, M budgets, each value is the sampled value
     :param budgets: discretization of the budgets, list of values
-    :return: list of arm idx (1 per sub-campaign) founded by the combinatorial algorithm
+    :return: list of arm idx (1 per sub-campaign) founded by the combinatorial algorithm, and best reward
     """
 
     rows = len(_input)
