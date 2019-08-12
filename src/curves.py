@@ -23,7 +23,7 @@ def filter0(val):
 # START: Google channel classes
 
 def google_c1(x):
-    return filter0(1.0 - np.exp(3. - 1. * x)) * HIGH
+    return filter0(1.0 - np.exp(2. - 1. * x)) * HIGH
 
 
 def google_c2(x):

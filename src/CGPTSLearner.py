@@ -1,6 +1,6 @@
 import numpy as np
 from src.GPTSLearner import GPTSLearner
-from src.optimization import get_optimized_arms
+from src.optimization import combinatorial_optimization
 from typing import List
 
 
@@ -15,6 +15,7 @@ class CGPTSLearner:
         self.sampled_values = None  # store for each sub-campaign one sample for each arm
         self.budgets = budgets
         self.budget = 0
+        self.sampled_values_matrix = None
 
     def add_sub_campaign(self, new_sub_campaign):
         self.sub_campaigns.append(new_sub_campaign)
@@ -33,17 +34,7 @@ class CGPTSLearner:
         for idx, gpts in enumerate(self.sub_campaigns):
             sampled_values[idx] = gpts.pull_arms()
 
-        return self.combinatorial_optimization(sampled_values)
-
-    def combinatorial_optimization(self, _input):
-        """
-        In according to the sampled values solve a combinatorial problem
-        that finds one arm per sub-campaign such that maximize the rewards
-        and such that satisfies the given budget
-        :param _input: NxM matrix, N number of sub-campaigns, M budgets
-        :return: list of arm idx (1 per sub-campaign) founded by the combinatorial algorithm
-        """
-        return get_optimized_arms(_input, self.budgets.tolist())
+        return sampled_values
 
     def update(self, pulled_arms, rewards):
         for idx, pulled_arm in enumerate(pulled_arms):
@@ -60,20 +51,3 @@ class CGPTSLearner:
             collected_rewards += sc.collected_rewards
 
         return collected_rewards
-
-    def get_samples(self, campaign_idx=0):
-        """
-        :param campaign_idx: index of the campaign
-        :return: pulled arms and their rewards -> x_obs, y_obs
-        """
-        assert 0 <= campaign_idx < self.n_sub_campaigns
-        return self.sub_campaigns[campaign_idx].pulled_arms, self.sub_campaigns[campaign_idx].collected_rewards
-
-    def get_predictions(self, campaign_idx=0):
-        """
-        Make the curve prediction for the specified sub-campaign
-        :param campaign_idx:
-        :return: y_pred, sigma. @see GPTSLearner.predict()
-        """
-        assert 0 <= campaign_idx < self.n_sub_campaigns
-        return self.sub_campaigns[campaign_idx].means, self.sub_campaigns[campaign_idx].sigmas

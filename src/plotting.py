@@ -2,14 +2,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_gp_regression(n_samples, x_pred, y_pred, x_obs, y_obs, sigma, true_function):
+def plot_gp_regression(n_samples, x_pred, y_pred, x_obs, y_obs, sigma, true_function, fc='b'):
     plt.figure(n_samples)
-    plt.plot(x_pred, true_function(x_pred), 'r:', label=r'$Expected number of clicks$')
+    plt.plot(x_pred, true_function(x_pred), 'r:', label=r'$True clicks$')
     plt.plot(np.atleast_2d(x_obs).T.ravel().ravel(), y_obs.ravel(), 'ro', label=u'Observed Clicks')
     plt.plot(x_pred, y_pred, 'b-', label=u'Predicted Clicks')
     plt.fill(np.concatenate([x_pred, x_pred[::-1]]),
              np.concatenate([y_pred - 1.96 * sigma, (y_pred + 1.96 * sigma)[::-1]]),
-             alpha=.5, fc='b', ec='None', label='95% conf interval')
+             alpha=.5, fc=fc, ec='None', label='95% conf interval')
     plt.xlabel('$budgets$')
     plt.ylabel('$Expected number of clicks$')
     plt.legend(loc='lower right')

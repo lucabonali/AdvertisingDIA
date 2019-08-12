@@ -14,8 +14,8 @@ n_arms = 20
 min_budget = 0
 max_budget = 19
 
-T = 80
-n_experiments = 3
+T = 2
+n_experiments = 1
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
 sigma = 5.0
@@ -43,7 +43,8 @@ if __name__ == '__main__':
         errs = [[] for _ in range(len(sub_campaigns))]
 
         for t in range(T):
-            pulled_arms = cgpts.pull_arms()
+            reward_matrix = cgpts.pull_arms()
+            pulled_arms, _ = combinatorial_optimization(reward_matrix, budgets.tolist())
             rewards = [sub_campaigns[idx].env.round(arm) for idx, arm in enumerate(pulled_arms)]
             cgpts.update(pulled_arms, rewards)
 
