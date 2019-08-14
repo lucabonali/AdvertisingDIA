@@ -15,7 +15,7 @@ min_budget = 0
 max_budget = 19
 
 T = 50
-n_experiments = 10
+n_experiments = 2
 # 100 x 100 -> ~ 11 hours
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
