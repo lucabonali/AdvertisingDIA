@@ -75,13 +75,13 @@ def instagram_agg(x):
 """ START: Youtube channel classes """
 
 def youtube_c1(x):
-    return filter0((MEDIUM - SHIFT) / (1 + np.exp(4. - 0.3 * x)))
+    return filter0((MEDIUM) / (1 + np.exp(4. - 0.3 * x)))
 
 def youtube_c2(x):
     return filter0(LOW / (1 + np.exp(5. - 0.35 * x)))
 
 def youtube_c3(x):
-    return filter0((LOW - 3*SHIFT) / (1 + np.exp(6. - 0.35 * x)))
+    return filter0((LOW - SHIFT) / (1 + np.exp(6. - 0.35 * x)))
 
 def youtube_agg(x):
     return (youtube_c1(x) * p_c1) + (youtube_c2(x) * p_c2) + (youtube_c3(x) * p_c3)
@@ -94,15 +94,16 @@ def bing_c1(x):
     return filter0(1.0 - np.exp(4. - 1. * x)) * MEDIUM
 
 def bing_c2(x):
-    return filter0((MEDIUM-SHIFT) / (1 + np.exp(7. - 0.8 * x)))
+    return filter0((MEDIUM) / (1 + np.exp(7. - 0.8 * x)))
 
 def bing_c3(x):
-    return filter0((LOW - SHIFT) / (1 + np.exp(6. - 0.6 * x)))
+    return filter0((LOW) / (1 + np.exp(6. - 0.6 * x)))
 
 def bing_agg(x):
     return (bing_c1(x) * p_c1) + (bing_c2(x) * p_c2) + (bing_c3(x) * p_c3)
 
 """ END: Bing channel classes """
+
 
 def true1(x):
     val = (1.0 - np.exp(3. - 2. * x)) * 45
