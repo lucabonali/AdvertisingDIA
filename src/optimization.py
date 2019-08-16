@@ -59,11 +59,12 @@ def get_optimized_arms(rewards_matrix, budgets):
     return combinatorial_optimization(rewards_matrix, budgets)[0]
 
 
-def combinatorial_optimization(_input, budgets):
+def combinatorial_optimization(_input, budgets, allow_empty=False):
     """
     In according to the sampled values solve a combinatorial problem
     that finds one arm per sub-campaign such that maximize the rewards
     and such that satisfies the given budget
+    :param allow_empty: if True allows to have 0-budget solution for some sub-campaigns
     :param _input: NxM matrix, N number of sub-campaigns, M budgets, each value is the sampled value
     :param budgets: discretization of the budgets, list of values
     :return: list of arm idx (1 per sub-campaign) founded by the combinatorial algorithm, and best reward
@@ -80,7 +81,7 @@ def combinatorial_optimization(_input, budgets):
     for campaign_idx in range(1, rows):
         for col, b in enumerate(budgets):
             # b -> current budget
-            values = [(INF, part) if (part[0] == 0 or part[1] == 0) else (opt_matrix[campaign_idx-1][budgets.index(part[0])].val + _input[campaign_idx][part[1]], part) for part in partitions(b)]
+            values = [(INF, part) if not allow_empty and (part[0] == 0 or part[1] == 0) else (opt_matrix[campaign_idx-1][budgets.index(part[0])].val + _input[campaign_idx][part[1]], part) for part in partitions(b)]
             _max = values[0][0]
             _part = values[0][1]
             # select the partition that has the highest reward
