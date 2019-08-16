@@ -1,3 +1,5 @@
+INF = -7839
+
 
 def partition(number):
     answer = set()
@@ -6,6 +8,17 @@ def partition(number):
         for y in partition(number - x):
             answer.add(tuple(sorted((x, ) + y)))
     return answer
+
+
+def partitions2(number):
+    tmp = list(filter(lambda x: len(x) == 2, partition(int(number))))
+    result = []
+    for t1, t2 in tmp:
+        result.append((t1, t2))
+        if t1 != t2:
+            result.append((t2, t1))
+
+    return result
 
 
 def partitions(number):
@@ -67,7 +80,7 @@ def combinatorial_optimization(_input, budgets):
     for campaign_idx in range(1, rows):
         for col, b in enumerate(budgets):
             # b -> current budget
-            values = [(opt_matrix[campaign_idx-1][budgets.index(part[0])].val + _input[campaign_idx][part[1]], part) for part in partitions(b)]
+            values = [(INF, part) if (part[0] == 0 or part[1] == 0) else (opt_matrix[campaign_idx-1][budgets.index(part[0])].val + _input[campaign_idx][part[1]], part) for part in partitions(b)]
             _max = values[0][0]
             _part = values[0][1]
             # select the partition that has the highest reward

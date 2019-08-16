@@ -15,8 +15,9 @@ n_arms = 20
 min_budget = 0
 max_budget = 19
 
-T = 60#57
-n_experiments = 10
+T = 50
+n_experiments = 15
+# 100 x 80
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
 sigma = 5.0
@@ -91,7 +92,7 @@ if __name__ == '__main__':
                     bench_cgpts.update(pulled_arms=bench_pulled_arms, rewards=bench_rewards)
 
             for idx, bench_campaign in enumerate(bench[0].sub_campaigns):
-                if t == T-1:
+                if e == round(n_experiments/2) and t == T-1:
                     y_pred = bench_campaign.means
                     x_obs, y_obs = bench_campaign.pulled_arms, bench_campaign.collected_rewards
                     plotting.plot_gp_regression(n_samples=t,
@@ -102,7 +103,7 @@ if __name__ == '__main__':
                                                 fc='g')
 
             for idx, sub_campaign in enumerate(sub_campaigns):
-                if t == T-1:
+                if e == round(n_experiments/2) and t == T-1:
                     y_pred = sub_campaign.means
                     x_obs, y_obs = sub_campaign.pulled_arms, sub_campaign.collected_rewards
                     plotting.plot_gp_regression(n_samples=t,
