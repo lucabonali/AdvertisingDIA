@@ -14,8 +14,8 @@ n_arms = 20
 min_budget = 0
 max_budget = 19
 
-T = 40
-n_experiments = 5
+T = 100
+n_experiments = 10
 # 100 x 100 -> ~ 11 hours
 # 100 x 80 -> 9.84 hours
 

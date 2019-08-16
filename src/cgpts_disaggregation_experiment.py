@@ -15,8 +15,8 @@ n_arms = 20
 min_budget = 0
 max_budget = 19
 
-T = 50
-n_experiments = 15
+T = 100
+n_experiments = 10
 # 100 x 80
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
