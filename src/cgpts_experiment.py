@@ -15,12 +15,14 @@ min_budget = 0
 max_budget = 19
 
 T = 100
-n_experiments = 10
+n_experiments = 100
 # 100 x 100 -> ~ 11 hours
 # 100 x 80 -> 9.84 hours
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
 sigma = 5.0
+
+allow_empty = True
 
 cgpts_rewards_per_experiment = []
 errs_per_experiment = []
@@ -46,7 +48,7 @@ if __name__ == '__main__':
 
         for t in range(T):
             reward_matrix = cgpts.pull_arms()
-            pulled_arms, _ = combinatorial_optimization(reward_matrix, budgets.tolist())
+            pulled_arms, _ = combinatorial_optimization(reward_matrix, budgets.tolist(), allow_empty=allow_empty)
             rewards = [sub_campaigns[idx].env.round(arm) for idx, arm in enumerate(pulled_arms)]
             cgpts.update(pulled_arms, rewards)
 
@@ -73,7 +75,7 @@ if __name__ == '__main__':
     plotting.plot_regression_error(errs_per_experiment, len(sub_campaigns))
 
     true_rewards_matrix = [c.env.realfunc(budgets).tolist() for c in sub_campaigns]
-    best_budgets, optimum = combinatorial_optimization(true_rewards_matrix, budgets.tolist())
+    best_budgets, optimum = combinatorial_optimization(true_rewards_matrix, budgets.tolist(), allow_empty=allow_empty)
     print("Best budgets => {}".format(best_budgets))
     print("Optimum      => {}".format(optimum))
 

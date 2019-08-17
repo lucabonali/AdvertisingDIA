@@ -17,6 +17,14 @@ class CGPTSLearner:
         self.budget = 0
         self.sampled_values_matrix = None
 
+    def remove_sub_campaign(self, sub_campaign):
+        self.sub_campaigns.remove(sub_campaign)
+        self.n_sub_campaigns -= 1
+
+    def add_sub_campaigns(self, new_sub_campaigns):
+        self.sub_campaigns.extend(new_sub_campaigns)
+        self.n_sub_campaigns += len(new_sub_campaigns)
+
     def add_sub_campaign(self, new_sub_campaign):
         self.sub_campaigns.append(new_sub_campaign)
         self.n_sub_campaigns += 1
