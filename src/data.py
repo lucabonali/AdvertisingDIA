@@ -34,6 +34,15 @@ def google_c3(x):
    return filter0(LOW / (1 + np.exp(5. - 0.5 * x)))
 
 
+def google_agg_c1c2(x):
+   return (google_c1(x) * p_c1) + (google_c2(x) * p_c2)
+
+def google_agg_c2c3(x):
+   return (google_c2(x) * p_c2) + (google_c3(x) * p_c3)
+
+def google_agg_c1c3(x):
+   return (google_c1(x) * p_c1) + (google_c3(x) * p_c3)
+
 def google_agg(x):
    return (google_c1(x) * p_c1) + (google_c2(x) * p_c2) + (google_c3(x) * p_c3)
 
@@ -51,6 +60,15 @@ def facebook_c2(x):
 def facebook_c3(x):
     return filter0((LOW + SHIFT) / (1 + np.exp(15. - 1. * x)))
 
+def facebook_agg_c1c2(x):
+    return (facebook_c1(x) * p_c1) + (facebook_c2(x) * p_c2)
+
+def facebook_agg_c2c3(x):
+    return (facebook_c2(x) * p_c2) + (facebook_c3(x) * p_c3)
+
+def facebook_agg_c1c3(x):
+    return (facebook_c1(x) * p_c1) + (facebook_c3(x) * p_c3)
+
 def facebook_agg(x):
     return (facebook_c1(x) * p_c1) + (facebook_c2(x) * p_c2) + (facebook_c3(x) * p_c3)
 
@@ -66,6 +84,15 @@ def instagram_c2(x):
 
 def instagram_c3(x):
     return filter0((LOW - 3*SHIFT) / (1 + np.exp(15. - 1.3 * x)))
+
+def instagram_agg_c1c2(x):
+    return (instagram_c1(x) * p_c1) + (instagram_c2(x) * p_c2)
+
+def instagram_agg_c2c3(x):
+    return (instagram_c2(x) * p_c2) + (instagram_c3(x) * p_c3)
+
+def instagram_agg_c1c3(x):
+    return (instagram_c1(x) * p_c1) + (instagram_c3(x) * p_c3)
 
 def instagram_agg(x):
     return (instagram_c1(x) * p_c1) + (instagram_c2(x) * p_c2) + (instagram_c3(x) * p_c3)
@@ -83,6 +110,15 @@ def youtube_c2(x):
 def youtube_c3(x):
     return filter0((LOW - SHIFT) / (1 + np.exp(6. - 0.35 * x)))
 
+def youtube_agg_c1c2(x):
+    return (youtube_c1(x) * p_c1) + (youtube_c2(x) * p_c2)
+
+def youtube_agg_c2c3(x):
+    return (youtube_c2(x) * p_c2) + (youtube_c3(x) * p_c3)
+
+def youtube_agg_c1c3(x):
+    return (youtube_c1(x) * p_c1) + (youtube_c3(x) * p_c3)
+
 def youtube_agg(x):
     return (youtube_c1(x) * p_c1) + (youtube_c2(x) * p_c2) + (youtube_c3(x) * p_c3)
 
@@ -98,6 +134,15 @@ def bing_c2(x):
 
 def bing_c3(x):
     return filter0((LOW) / (1 + np.exp(6. - 0.6 * x)))
+
+def bing_agg_c1c2(x):
+    return (bing_c1(x) * p_c1) + (bing_c2(x) * p_c2)
+
+def bing_agg_c2c3(x):
+    return (bing_c2(x) * p_c2) + (bing_c3(x) * p_c3)
+
+def bing_agg_c1c3(x):
+    return (bing_c1(x) * p_c1) + (bing_c3(x) * p_c3)
 
 def bing_agg(x):
     return (bing_c1(x) * p_c1) + (bing_c2(x) * p_c2) + (bing_c3(x) * p_c3)

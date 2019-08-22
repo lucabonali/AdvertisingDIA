@@ -17,18 +17,22 @@ max_budget = 19
 
 T = 50
 n_experiments = 1
-# 100 x 80
+# 100 x 80 ~12.5 hours
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
 sigma = 5.0
 
-allow_empty = True
+allow_empty = False
 
 disagg_day_per_experiment = []
+disagg_learner_per_experiment = []
+disagg_learner_counts = [0, 0, 0, 0]
 
 cgpts_rewards_per_experiment = []
 
 sub_campaigns = []
+optimums = []
+best_partitions_per_experiment = []
 ctc = 0  # Index of the sub_campaign that has to be checked for disaggregation
 
 if __name__ == '__main__':
@@ -53,8 +57,18 @@ if __name__ == '__main__':
                 GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_c3))
             ]),
             CGPTSLearner(name="CGPTS_disagg_c3", budgets=budgets, sub_campaigns=[
-                GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, lambda x: curves.google_c1(x) + curves.google_c2(x))),
+                GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, lambda x: curves.google_c1(x)*p_c1 + curves.google_c2(x)*p_c2)),
                 GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_c3))
+            ]),
+            CGPTSLearner(name="CGPTS_disagg_c2", budgets=budgets, sub_campaigns=[
+                GPTSLearner(n_arms=n_arms, arms=budgets,
+                            env=BudgetEnvironment(budgets, sigma, lambda x: curves.google_c1(x)*p_c1 + curves.google_c3(x)*p_c3)),
+                GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_c2))
+            ]),
+            CGPTSLearner(name="CGPTS_disagg_c1", budgets=budgets, sub_campaigns=[
+                GPTSLearner(n_arms=n_arms, arms=budgets,
+                            env=BudgetEnvironment(budgets, sigma, lambda x: curves.google_c2(x)*p_c2 + curves.google_c3(x)*p_c3)),
+                GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_c1))
             ])
         ]
 
@@ -91,16 +105,28 @@ if __name__ == '__main__':
                         print("Performing disaggregation..")
                         update = False
                         disagg_day_per_experiment.append(t)
+                        disagg_learner_counts[best_bench_reward_idx] += 1
+                        disagg_learner_per_experiment.append(bench[best_bench_reward_idx].name)
                         cgpts.remove_sub_campaign(sub_campaigns[ctc])
                         cgpts.add_sub_campaigns(bench[best_bench_reward_idx].sub_campaigns)
 
                 for idx, bench_cgpts in enumerate(bench):
                     if idx == 0:
+                        # all classes disaggregated
                         bench_pulled_arms = [round(pulled_arms[ctc]/3)] * bench_cgpts.n_sub_campaigns
                         bench_rewards = np.array([p_c1, p_c2, p_c3]) * rewards[ctc]
                     elif idx == 1:
+                        # only c3 disaggregated
                         bench_pulled_arms = [round(pulled_arms[ctc] / 2)] * bench_cgpts.n_sub_campaigns
                         bench_rewards = np.array([(p_c1 + p_c2), p_c3]) * rewards[ctc]
+                    elif idx == 2:
+                        # only c2 disaggregated
+                        bench_pulled_arms = [round(pulled_arms[ctc] / 2)] * bench_cgpts.n_sub_campaigns
+                        bench_rewards = np.array([(p_c1 + p_c3), p_c2]) * rewards[ctc]
+                    elif idx == 3:
+                        # only c1 disaggregated
+                        bench_pulled_arms = [round(pulled_arms[ctc] / 2)] * bench_cgpts.n_sub_campaigns
+                        bench_rewards = np.array([(p_c2 + p_c3), p_c1]) * rewards[ctc]
                     else:
                         raise RuntimeError("Idx not handled")
 
@@ -129,6 +155,13 @@ if __name__ == '__main__':
                                                 true_function=sub_campaign.env.realfunc)
         if update:
             disagg_day_per_experiment.append(None)
+            disagg_learner_per_experiment.append(None)
+
+        true_rewards_matrix = [c.env.realfunc(budgets).tolist() for c in sub_campaigns]
+        best_budgets, optimum = combinatorial_optimization(true_rewards_matrix, budgets.tolist(),
+                                                           allow_empty=allow_empty)
+        optimums.append(optimum)
+        best_partitions_per_experiment.append(best_budgets)
 
         print(": {:.2f} sec".format(time.time() - start_time))
 
@@ -136,13 +169,17 @@ if __name__ == '__main__':
 
     print("Algorithm ended in {:.2f} sec.".format(time.time() - tot_time))
 
-    true_rewards_matrix = [c.env.realfunc(budgets).tolist() for c in sub_campaigns]
-    best_budgets, optimum = combinatorial_optimization(true_rewards_matrix, budgets.tolist(), allow_empty=allow_empty)
-    print("Best budgets => {}".format(best_budgets))
-    print("Optimum      => {}".format(optimum))
+    #true_rewards_matrix = [c.env.realfunc(budgets).tolist() for c in sub_campaigns]
+    #best_budgets, optimum = combinatorial_optimization(true_rewards_matrix, budgets.tolist(), allow_empty=allow_empty)
+    opt_idx = np.argmax(np.array(optimums))
+    print("Optimums     => {}".format(optimums))
+    print("Best budgets => {}".format(best_partitions_per_experiment[opt_idx]))
+    print("Optimum      => {}".format(optimums[opt_idx]))
 
     print("Disaggregation days: {}".format(disagg_day_per_experiment))
+    print("Best Learners:       {}".format(disagg_learner_per_experiment))
+    print("Best Learners:       {}".format(disagg_learner_counts))
 
-    plotting.plot_rewards(cgpts_rewards_per_experiment, optimum, T)
-    plotting.plot_regret(np.array(cgpts_rewards_per_experiment), optimum)
+    plotting.plot_rewards(cgpts_rewards_per_experiment, optimums[opt_idx], T)
+    plotting.plot_regret(np.array(cgpts_rewards_per_experiment), optimums[opt_idx])
 
