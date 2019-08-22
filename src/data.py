@@ -26,7 +26,7 @@ def filter0(val):
 """ START: Google channel classes """
 
 def google_c1(x):
-   return filter0(1.0 - np.exp(2. - 1. * x)) * HIGH
+   return filter0(1.0 - np.exp(0.2 - 0.4 * x)) * HIGH
 
 
 def google_c2(x):
@@ -130,7 +130,7 @@ def youtube_agg(x):
 """ START: Bing channel classes """
 
 def bing_c1(x):
-    return filter0(1.0 - np.exp(4. - 1. * x)) * MEDIUM
+    return filter0(1.0 - np.exp(3. - 0.7 * x)) * MEDIUM
 
 def bing_c2(x):
     return filter0((MEDIUM) / (1 + np.exp(7. - 0.8 * x)))
