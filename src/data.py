@@ -17,7 +17,10 @@ def fun(x):
 
 
 def filter0(val):
-    return np.array(list(map(lambda v: v if v >= 0.0 else 0.0, val.tolist())))
+    if isinstance(val, np.ndarray):
+        return np.array(list(map(lambda v: v if v >= 0.0 else 0.0, val.tolist())))
+    else:
+        return val if val >= 0 else 0
 
 
 """ START: Google channel classes """
@@ -35,13 +38,13 @@ def google_c3(x):
 
 
 def google_agg_c1c2(x):
-   return (google_c1(x) * p_c1) + (google_c2(x) * p_c2)
+   return (google_c1(x) * (p_c1 / (p_c1+p_c2))) + (google_c2(x) * (p_c2 / (p_c1+p_c2)))
 
 def google_agg_c2c3(x):
-   return (google_c2(x) * p_c2) + (google_c3(x) * p_c3)
+   return (google_c2(x) * (p_c2 / (p_c3+p_c2))) + (google_c3(x) * (p_c3 / (p_c3+p_c2)))
 
 def google_agg_c1c3(x):
-   return (google_c1(x) * p_c1) + (google_c3(x) * p_c3)
+   return (google_c1(x) * (p_c1 / (p_c3+p_c1))) + (google_c3(x) * (p_c3 / (p_c3+p_c1)))
 
 def google_agg(x):
    return (google_c1(x) * p_c1) + (google_c2(x) * p_c2) + (google_c3(x) * p_c3)
@@ -61,13 +64,13 @@ def facebook_c3(x):
     return filter0((LOW + SHIFT) / (1 + np.exp(15. - 1. * x)))
 
 def facebook_agg_c1c2(x):
-    return (facebook_c1(x) * p_c1) + (facebook_c2(x) * p_c2)
+    return (facebook_c1(x) * (p_c1 / (p_c1+p_c2)) + (facebook_c2(x) * (p_c2/ (p_c1+p_c2))))
 
 def facebook_agg_c2c3(x):
-    return (facebook_c2(x) * p_c2) + (facebook_c3(x) * p_c3)
+    return (facebook_c2(x) * (p_c2 / (p_c3+p_c2))) + (facebook_c3(x) * (p_c3 / (p_c3+p_c2)))
 
 def facebook_agg_c1c3(x):
-    return (facebook_c1(x) * p_c1) + (facebook_c3(x) * p_c3)
+    return (facebook_c1(x) * (p_c1 / (p_c3+p_c1))) + (facebook_c3(x) * (p_c3 / (p_c3+p_c1)))
 
 def facebook_agg(x):
     return (facebook_c1(x) * p_c1) + (facebook_c2(x) * p_c2) + (facebook_c3(x) * p_c3)
@@ -86,13 +89,13 @@ def instagram_c3(x):
     return filter0((LOW - 3*SHIFT) / (1 + np.exp(15. - 1.3 * x)))
 
 def instagram_agg_c1c2(x):
-    return (instagram_c1(x) * p_c1) + (instagram_c2(x) * p_c2)
+    return (instagram_c1(x) * (p_c1/ (p_c1+p_c2))) + (instagram_c2(x) * (p_c2/ (p_c1+p_c2)))
 
 def instagram_agg_c2c3(x):
-    return (instagram_c2(x) * p_c2) + (instagram_c3(x) * p_c3)
+    return (instagram_c2(x) * (p_c2 / (p_c3+p_c2))) + (instagram_c3(x) * (p_c3 / (p_c3+p_c2)))
 
 def instagram_agg_c1c3(x):
-    return (instagram_c1(x) * p_c1) + (instagram_c3(x) * p_c3)
+    return (instagram_c1(x) * (p_c1 / (p_c3+p_c1))) + (instagram_c3(x) * (p_c3 / (p_c3+p_c1)))
 
 def instagram_agg(x):
     return (instagram_c1(x) * p_c1) + (instagram_c2(x) * p_c2) + (instagram_c3(x) * p_c3)
@@ -111,13 +114,13 @@ def youtube_c3(x):
     return filter0((LOW - SHIFT) / (1 + np.exp(6. - 0.35 * x)))
 
 def youtube_agg_c1c2(x):
-    return (youtube_c1(x) * p_c1) + (youtube_c2(x) * p_c2)
+    return (youtube_c1(x) * (p_c1 / (p_c1+p_c2))) + (youtube_c2(x) * (p_c2 / (p_c1+p_c2)))
 
 def youtube_agg_c2c3(x):
-    return (youtube_c2(x) * p_c2) + (youtube_c3(x) * p_c3)
+    return (youtube_c2(x) * (p_c2 / (p_c3+p_c2))) + (youtube_c3(x) * (p_c3 / (p_c3+p_c2)))
 
 def youtube_agg_c1c3(x):
-    return (youtube_c1(x) * p_c1) + (youtube_c3(x) * p_c3)
+    return (youtube_c1(x) * (p_c1 / (p_c3+p_c1))) + (youtube_c3(x) * (p_c3 / (p_c3+p_c1)))
 
 def youtube_agg(x):
     return (youtube_c1(x) * p_c1) + (youtube_c2(x) * p_c2) + (youtube_c3(x) * p_c3)
@@ -136,13 +139,13 @@ def bing_c3(x):
     return filter0((LOW) / (1 + np.exp(6. - 0.6 * x)))
 
 def bing_agg_c1c2(x):
-    return (bing_c1(x) * p_c1) + (bing_c2(x) * p_c2)
+    return (bing_c1(x) * (p_c1 / (p_c1+p_c2))) + (bing_c2(x) * (p_c2 / (p_c1+p_c2)))
 
 def bing_agg_c2c3(x):
-    return (bing_c2(x) * p_c2) + (bing_c3(x) * p_c3)
+    return (bing_c2(x) * (p_c2 / (p_c3+p_c2))) + (bing_c3(x) * (p_c3 / (p_c3+p_c2)))
 
 def bing_agg_c1c3(x):
-    return (bing_c1(x) * p_c1) + (bing_c3(x) * p_c3)
+    return (bing_c1(x) * (p_c1 / (p_c3+p_c1))) + (bing_c3(x) * (p_c3 / (p_c3+p_c1)))
 
 def bing_agg(x):
     return (bing_c1(x) * p_c1) + (bing_c2(x) * p_c2) + (bing_c3(x) * p_c3)
