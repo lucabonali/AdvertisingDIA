@@ -16,13 +16,14 @@ min_budget = 0
 max_budget = 19
 
 T = 100
-n_experiments = 5
+n_experiments = 2
 # 100 x 80 ~12.5 hours
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
 sigma = 5.0
 
-allow_empty = False
+allow_empty = True
+allow_empty_disagg = True
 
 disagg_day_per_experiment = []
 disagg_learner_per_experiment = []
@@ -163,7 +164,8 @@ if __name__ == '__main__':
                     for idx, bench_cgpts in enumerate(bench):
                         bench_reward_matrix = bench_cgpts.pull_arms()
                         bench_reward_matrix.extend(reward_matrix[1:].copy())
-                        tmp_pulled_arms, tmp_reward = combinatorial_optimization(bench_reward_matrix, budgets.tolist())
+                        tmp_pulled_arms, tmp_reward = combinatorial_optimization(bench_reward_matrix, budgets.tolist(),
+                                                                                 allow_empty=allow_empty_disagg)
                         bench_pulled_arms[idx].extend(tmp_pulled_arms)
                         bench_rewards[idx] = tmp_reward
                         print("{} reward -> {} with {}".format(bench_cgpts.name, tmp_reward, tmp_pulled_arms))
