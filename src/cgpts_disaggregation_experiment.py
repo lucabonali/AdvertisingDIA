@@ -15,8 +15,8 @@ n_arms = 20
 min_budget = 0
 max_budget = 19
 
-T = 50
-n_experiments = 1
+T = 100
+n_experiments = 10
 # 100 x 80 ~12.5 hours
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
@@ -33,7 +33,9 @@ cgpts_rewards_per_experiment = []
 sub_campaigns = []
 optimums = []
 best_partitions_per_experiment = []
+
 ctc = 0  # Index of the sub_campaign that has to be checked for disaggregation
+LIMIT = 22  # day from which start checking whether disaggregate or not
 
 if __name__ == '__main__':
     tot_time = time.time()
@@ -57,17 +59,15 @@ if __name__ == '__main__':
                 GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_c3))
             ]),
             CGPTSLearner(name="CGPTS_disagg_c3", budgets=budgets, sub_campaigns=[
-                GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, lambda x: curves.google_c1(x)*p_c1 + curves.google_c2(x)*p_c2)),
+                GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_agg_c1c2)),
                 GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_c3))
             ]),
             CGPTSLearner(name="CGPTS_disagg_c2", budgets=budgets, sub_campaigns=[
-                GPTSLearner(n_arms=n_arms, arms=budgets,
-                            env=BudgetEnvironment(budgets, sigma, lambda x: curves.google_c1(x)*p_c1 + curves.google_c3(x)*p_c3)),
+                GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_agg_c1c3)),
                 GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_c2))
             ]),
             CGPTSLearner(name="CGPTS_disagg_c1", budgets=budgets, sub_campaigns=[
-                GPTSLearner(n_arms=n_arms, arms=budgets,
-                            env=BudgetEnvironment(budgets, sigma, lambda x: curves.google_c2(x)*p_c2 + curves.google_c3(x)*p_c3)),
+                GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_agg_c2c3)),
                 GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_c1))
             ])
         ]
@@ -76,13 +76,14 @@ if __name__ == '__main__':
 
         for t in range(T):
             reward_matrix = cgpts.pull_arms()
-            pulled_arms, online_reward = combinatorial_optimization(reward_matrix, budgets.tolist(), allow_empty=allow_empty)
+            pulled_arms, online_reward = combinatorial_optimization(reward_matrix, budgets.tolist(),
+                                                                    allow_empty=allow_empty)
 
             rewards = [sub_campaigns[idx].env.round(arm) for idx, arm in enumerate(pulled_arms)]
             cgpts.update(pulled_arms, rewards)
 
             if update:
-                if t > 8 and (t % 7) == 0:
+                if t > LIMIT and (t % 7) == 0:
                     bench_pulled_arms = [[] for _ in bench]
                     bench_rewards = [0 for _ in bench]
                     print("\nDay{}\n".format(t+1))
@@ -110,26 +111,56 @@ if __name__ == '__main__':
                         cgpts.remove_sub_campaign(sub_campaigns[ctc])
                         cgpts.add_sub_campaigns(bench[best_bench_reward_idx].sub_campaigns)
 
+                #print("pulled arm: {}".format(pulled_arms[ctc]))
+
                 for idx, bench_cgpts in enumerate(bench):
                     if idx == 0:
                         # all classes disaggregated
-                        bench_pulled_arms = [round(pulled_arms[ctc]/3)] * bench_cgpts.n_sub_campaigns
-                        bench_rewards = np.array([p_c1, p_c2, p_c3]) * rewards[ctc]
+                        # arm_partition = round(pulled_arms[ctc]/3)
+                        bench_pulled_arms = np.dot([p_c1, p_c2, p_c3], pulled_arms[ctc]).tolist()
+                        bench_pulled_arms = [round(v) for v in bench_pulled_arms]
+                        tmp = np.array(
+                            [c.env.realfunc(pulled_arms[ctc]) for c in bench_cgpts.sub_campaigns]) * np.array(
+                            [p_c1, p_c2, p_c3])
+                        _sum = np.sum(tmp)
+                        bench_rewards = np.array(list(map(lambda x: x / _sum if _sum != 0 else 0, tmp))) * rewards[ctc]
                     elif idx == 1:
                         # only c3 disaggregated
-                        bench_pulled_arms = [round(pulled_arms[ctc] / 2)] * bench_cgpts.n_sub_campaigns
-                        bench_rewards = np.array([(p_c1 + p_c2), p_c3]) * rewards[ctc]
+                        # arm_partition = round(pulled_arms[ctc] / 2)
+                        bench_pulled_arms = np.dot([p_c1 + p_c2, p_c3], pulled_arms[ctc]).tolist()
+                        bench_pulled_arms = [round(v) for v in bench_pulled_arms]
+                        tmp = np.array(
+                            [c.env.realfunc(pulled_arms[ctc]) for c in bench_cgpts.sub_campaigns]) * np.array(
+                            [p_c1 + p_c2, p_c3])
+                        _sum = np.sum(tmp)
+                        bench_rewards = np.array(list(map(lambda x: x / _sum if _sum != 0 else 0, tmp))) * rewards[ctc]
                     elif idx == 2:
                         # only c2 disaggregated
-                        bench_pulled_arms = [round(pulled_arms[ctc] / 2)] * bench_cgpts.n_sub_campaigns
-                        bench_rewards = np.array([(p_c1 + p_c3), p_c2]) * rewards[ctc]
+                        # arm_partition = round(pulled_arms[ctc] / 2)
+                        bench_pulled_arms = np.dot([p_c1 + p_c3, p_c2], pulled_arms[ctc]).tolist()
+                        bench_pulled_arms = [round(v) for v in bench_pulled_arms]
+                        tmp = np.array(
+                            [c.env.realfunc(pulled_arms[ctc]) for c in bench_cgpts.sub_campaigns]) * np.array(
+                            [p_c1 + p_c3, p_c2])
+                        _sum = np.sum(tmp)
+                        bench_rewards = np.array(list(map(lambda x: x / _sum if _sum != 0 else 0, tmp))) * rewards[ctc]
                     elif idx == 3:
                         # only c1 disaggregated
-                        bench_pulled_arms = [round(pulled_arms[ctc] / 2)] * bench_cgpts.n_sub_campaigns
-                        bench_rewards = np.array([(p_c2 + p_c3), p_c1]) * rewards[ctc]
+                        # arm_partition = round(pulled_arms[ctc] / 2)
+                        bench_pulled_arms = np.dot([p_c2 + p_c3, p_c1], pulled_arms[ctc]).tolist()
+                        bench_pulled_arms = [round(v) for v in bench_pulled_arms]
+                        tmp = np.array(
+                            [c.env.realfunc(pulled_arms[ctc]) for c in bench_cgpts.sub_campaigns]) * np.array(
+                            [p_c2 + p_c3, p_c1])
+                        _sum = np.sum(tmp)
+                        bench_rewards = np.array(list(map(lambda x: x / _sum if _sum != 0 else 0, tmp))) * rewards[ctc]
                     else:
                         raise RuntimeError("Idx not handled")
 
+                    #print("reward: {}".format(rewards[ctc]))
+                    #print("arm partitions: {}".format(arm_partition))
+                    #print("bench_pulled_arms: {}".format(bench_pulled_arms))
+                    #print("bench rewards: {}".format(bench_rewards))
                     bench_cgpts.update(pulled_arms=bench_pulled_arms, rewards=bench_rewards)
 
             if e == round(n_experiments / 2) and t == T - 1:

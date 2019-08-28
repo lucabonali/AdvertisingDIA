@@ -133,7 +133,7 @@ def bing_c1(x):
     return filter0(1.0 - np.exp(3. - 0.7 * x)) * MEDIUM
 
 def bing_c2(x):
-    return filter0((MEDIUM) / (1 + np.exp(7. - 0.8 * x)))
+    return filter0((MEDIUM) / (1 + np.exp(4.5 - 1. * x)))
 
 def bing_c3(x):
     return filter0((LOW) / (1 + np.exp(6. - 0.6 * x)))
