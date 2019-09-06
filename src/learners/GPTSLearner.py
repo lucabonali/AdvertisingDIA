@@ -1,5 +1,5 @@
 import numpy as np
-from src.Learner import Learner
+from src.learners.Learner import Learner
 from src.BudgetEnvironment import BudgetEnvironment
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C

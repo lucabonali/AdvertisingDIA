@@ -6,8 +6,8 @@ import numpy as np
 import src.data as curves
 import src.plotting as plotting
 from src.BudgetEnvironment import BudgetEnvironment
-from src.CGPTSLearner import CGPTSLearner
-from src.GPTSLearner import GPTSLearner
+from src.combinatorial_learners.CGPTSLearner import CGPTSLearner
+from src.learners.GPTSLearner import GPTSLearner
 from src.optimization import combinatorial_optimization
 
 n_arms = 20
@@ -15,7 +15,7 @@ min_budget = 0
 max_budget = 19
 
 T = 100
-n_experiments = 80
+n_experiments = 100
 # 100 x 100 -> ~ 11 hours
 # 100 x 80 -> 9.84 hours
 

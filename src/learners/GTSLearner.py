@@ -1,7 +1,7 @@
 import numpy as np
 
 from .Learner import Learner
-from .BudgetEnvironment import BudgetEnvironment
+from src.BudgetEnvironment import BudgetEnvironment
 
 class GTSLearner(Learner):
     

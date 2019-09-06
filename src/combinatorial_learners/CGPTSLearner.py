@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np
 
-from src.GPTSLearner import GPTSLearner
+from src.learners.GPTSLearner import GPTSLearner
 
 
 class CGPTSLearner:

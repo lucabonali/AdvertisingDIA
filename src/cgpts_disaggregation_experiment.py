@@ -6,8 +6,8 @@ import numpy as np
 import src.data as curves
 import src.plotting as plotting
 from src.BudgetEnvironment import BudgetEnvironment
-from src.CGPTSLearner import CGPTSLearner
-from src.GPTSLearner import GPTSLearner
+from src.combinatorial_learners.CGPTSLearner import CGPTSLearner
+from src.learners.GPTSLearner import GPTSLearner
 from src.data import p_c1, p_c2, p_c3
 from src.optimization import combinatorial_optimization
 

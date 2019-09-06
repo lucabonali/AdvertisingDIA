@@ -6,20 +6,20 @@ import numpy as np
 import src.data as curves
 import src.plotting as plotting
 from src.BudgetEnvironment import BudgetEnvironment
-from src.CGPTSLearner import CGPTSLearner
-from src.CGTSLearner import CGTSLearner
-from src.GTSLearner import GTSLearner
-from src.GPTSLearner import GPTSLearner
+from src.combinatorial_learners.CGPTSLearner import CGPTSLearner
+from src.combinatorial_learners.CGTSLearner import CGTSLearner
+from src.learners.GTSLearner import GTSLearner
+from src.learners.GPTSLearner import GPTSLearner
 from src.optimization import combinatorial_optimization
 
 n_arms = 20
 min_budget = 0
 max_budget = 19
 
-T = 10
-n_experiments = 2
-# 100 x 100 -> ~ 11 hours
-# 100 x 80 -> 9.84 hours
+T = 100
+n_experiments = 50
+# 100 x 6 -> ~ 1.24 hours
+# 100 x 50 -> 11 hours
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
 sigma = 5.0

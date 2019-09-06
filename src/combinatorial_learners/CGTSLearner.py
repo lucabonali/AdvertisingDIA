@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np
 
-from src.GTSLearner import GTSLearner
+from src.learners.GTSLearner import GTSLearner
 
 
 class CGTSLearner():
