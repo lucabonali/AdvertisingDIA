@@ -1,7 +1,8 @@
-import numpy as np
-from src.GPTSLearner import GPTSLearner
-from src.optimization import combinatorial_optimization
 from typing import List
+
+import numpy as np
+
+from src.GPTSLearner import GPTSLearner
 
 
 class CGPTSLearner:

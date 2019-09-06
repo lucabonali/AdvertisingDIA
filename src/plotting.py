@@ -26,6 +26,17 @@ def plot_regret(rewards_per_experiment, opt):
     plt.show()
 
 
+def plot_comparison_regret(rewards_per_experiment1, rewards_per_experiment2, opt):
+    # plot regret analysis of the model
+    plt.figure(0)
+    plt.ylabel("Regret")
+    plt.xlabel("t")
+    plt.plot(np.cumsum(np.mean(opt - rewards_per_experiment1, axis=0)), 'g')
+    plt.plot(np.cumsum(np.mean(opt - rewards_per_experiment2, axis=0)), 'r')
+    plt.legend(["CGPTS", "CGTS"], loc="best")
+    plt.show()
+
+
 def plot_multiple_regret(rewards_per_cgpts_per_experiment, opt, names):
     # plot regret analysis of the model
     print("plotting regrets..")
