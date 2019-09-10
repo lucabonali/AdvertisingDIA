@@ -44,20 +44,19 @@ def plot_multiple_regret(rewards_per_cgpts_per_experiment, opt, names):
     plt.ylabel("Regret")
     plt.xlabel("t")
     for idx, rewards_per_experiment in enumerate(rewards_per_cgpts_per_experiment):
-        plt.plot(np.cumsum(np.mean(opt[idx] - rewards_per_experiment, axis=0)))
+        plt.plot(np.cumsum(np.mean(opt - np.array(rewards_per_experiment), axis=0)))
     plt.legend(names, loc="best")
     plt.show()
 
 
 def plot_multiple_rewards(rewards_per_cgpts_per_experiment, opt, n_samples, _names):
     print("plotting rewards..")
-    names = ["Clairvoyant{}".format(idx) for idx, _ in enumerate(opt)]
+    names = ["Clairvoyant"]
     names.extend(_names)
     plt.figure(0)
     plt.ylabel("Reward")
     plt.xlabel("t")
-    for o in opt:
-        plt.plot(np.ones(shape=n_samples) * o)
+    plt.plot(np.ones(shape=n_samples) * opt, 'r')
     for rewards_per_experiment in rewards_per_cgpts_per_experiment:
         plt.plot(np.mean(rewards_per_experiment, axis=0))
     plt.legend(names, loc="best")
