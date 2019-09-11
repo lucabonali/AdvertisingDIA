@@ -15,7 +15,7 @@ min_budget = 0
 max_budget = 19
 
 T = 100
-n_experiments = 100
+n_experiments = 3
 # 100 x 100 -> ~ 11 hours
 # 100 x 80 -> 9.84 hours
 
@@ -35,12 +35,13 @@ if __name__ == '__main__':
         print('Experiment #{}'.format(e + 1), end='')
         start_time = time.time()
 
+        alpha = 5
         sub_campaigns: List[GPTSLearner] = [
-            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.google_agg)),
-            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.facebook_agg)),
-            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.instagram_agg)),
-            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.youtube_agg)),
-            GPTSLearner(n_arms=n_arms, arms=budgets, env=BudgetEnvironment(budgets, sigma, curves.bing_agg))
+            GPTSLearner(n_arms=n_arms, arms=budgets, alpha=alpha, env=BudgetEnvironment(budgets, sigma, curves.google_agg)),
+            GPTSLearner(n_arms=n_arms, arms=budgets, alpha=alpha, env=BudgetEnvironment(budgets, sigma, curves.facebook_agg)),
+            GPTSLearner(n_arms=n_arms, arms=budgets, alpha=alpha, env=BudgetEnvironment(budgets, sigma, curves.instagram_agg)),
+            GPTSLearner(n_arms=n_arms, arms=budgets, alpha=alpha, env=BudgetEnvironment(budgets, sigma, curves.youtube_agg)),
+            GPTSLearner(n_arms=n_arms, arms=budgets, alpha=alpha, env=BudgetEnvironment(budgets, sigma, curves.bing_agg))
         ]
 
         cgpts = CGPTSLearner("CGPTS", sub_campaigns, budgets)

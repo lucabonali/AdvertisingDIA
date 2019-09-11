@@ -73,6 +73,19 @@ def plot_rewards(rewards_per_experiment, opt, n_samples):
     plt.show()
 
 
+def plot_comparison_rewards(rewards_per_experiment1, rewards_per_experiment2, opt, n_samples, _names):
+    names = ["Clairvoyant"]
+    names.extend(_names)
+    plt.figure(0)
+    plt.ylabel("Reward")
+    plt.xlabel("t")
+    plt.plot(np.ones(shape=n_samples) * opt, 'r')
+    plt.plot(np.mean(rewards_per_experiment1, axis=0), 'g')
+    plt.plot(np.mean(rewards_per_experiment2, axis=0), 'b')
+    plt.legend(names, loc="best")
+    plt.show()
+
+
 def plot_regression_error(errs_per_experiment, n_sub_campaigns):
     plt.figure(0)
     plt.ylabel("Regression Error")

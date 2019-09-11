@@ -29,7 +29,7 @@ disagg_day_per_experiment = []
 disagg_learner_per_experiment = []
 disagg_learner_counts = [0, 0, 0, 0]
 
-cgpts_rewards_per_experiment = []
+cgpts_rewards_per_experiment = [[] for _ in range(2)]
 
 sub_campaigns = []
 optimums = []
@@ -40,6 +40,8 @@ LIMIT = 22  # day from which start checking whether disaggregate or not
 
 if __name__ == '__main__':
     tot_time = time.time()
+
+    # DISAGGREGATION
     for e in range(n_experiments):
         partial_disagg = None
         disaggregation_learners = []
@@ -257,7 +259,34 @@ if __name__ == '__main__':
 
         print(": {:.2f} sec".format(time.time() - start_time))
 
-        cgpts_rewards_per_experiment.append(cgpts.get_collected_rewards())
+        cgpts_rewards_per_experiment[0].append(cgpts.get_collected_rewards())
+
+        # NO DISAGGREGATION
+
+    for e in range(n_experiments):
+        alpha = 10
+        print('Experiment with alpha = {} #{}'.format(alpha, e + 1), end='')
+        start_time = time.time()
+
+        sub_campaigns: List[GPTSLearner] = [
+            GPTSLearner(n_arms=n_arms, arms=budgets, alpha=alpha, env=BudgetEnvironment(budgets, sigma, curves.google_agg)),
+            GPTSLearner(n_arms=n_arms, arms=budgets, alpha=alpha, env=BudgetEnvironment(budgets, sigma, curves.facebook_agg)),
+            GPTSLearner(n_arms=n_arms, arms=budgets, alpha=alpha, env=BudgetEnvironment(budgets, sigma, curves.instagram_agg)),
+            GPTSLearner(n_arms=n_arms, arms=budgets, alpha=alpha, env=BudgetEnvironment(budgets, sigma, curves.youtube_agg)),
+            GPTSLearner(n_arms=n_arms, arms=budgets, alpha=alpha, env=BudgetEnvironment(budgets, sigma, curves.bing_agg))
+        ]
+
+        cgpts = CGPTSLearner("CGPTS", sub_campaigns, budgets)
+
+        for t in range(T):
+            reward_matrix = cgpts.pull_arms()
+            pulled_arms, _ = combinatorial_optimization(reward_matrix, budgets.tolist(), allow_empty=allow_empty)
+            rewards = [sub_campaigns[idx].env.round(arm) for idx, arm in enumerate(pulled_arms)]
+            cgpts.update(pulled_arms, rewards)
+
+        print(": {:.2f} sec".format(time.time() - start_time))
+
+        cgpts_rewards_per_experiment[1].append(cgpts.get_collected_rewards())
 
     print("Algorithm ended in {:.2f} sec.".format(time.time() - tot_time))
 
@@ -272,8 +301,8 @@ if __name__ == '__main__':
     print("Best Learners:       {}".format(disagg_learner_per_experiment))
     print("Best Learners:       {}".format(disagg_learner_counts))
 
-    plotting.plot_rewards(cgpts_rewards_per_experiment, 183, T)
+    plotting.plot_multiple_rewards(cgpts_rewards_per_experiment, 183, T, _names=["CGPTS with disaggregation", "CGPTS without disaggregation"])
     #plotting.plot_rewards(cgpts_rewards_per_experiment, optimums[opt_idx], T)
-    plotting.plot_regret(np.array(cgpts_rewards_per_experiment), 183)
+    plotting.plot_multiple_regret(np.array(cgpts_rewards_per_experiment), 183, names=["CGPTS with disaggregation", "CGPTS without disaggregation"])
     #plotting.plot_regret(np.array(cgpts_rewards_per_experiment), optimums[opt_idx])
 

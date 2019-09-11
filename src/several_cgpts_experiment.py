@@ -15,8 +15,8 @@ min_budget = 0
 max_budget = 19
 
 n_algorithms = 2
-T = 20
-n_experiments = 1
+T = 100
+n_experiments = 10
 # 100 x 100 -> ~ 11 hours
 # 100 x 80 -> 9.84 hours
 
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     for a in range(n_algorithms):
         allow_empty = True if a == 0 else False
         for e in range(n_experiments):
-            print('Experiment #{}'.format(e + 1), end='')
+            print('Experiment #{}.{}'.format(e + 1, a + 1), end='')
             start_time = time.time()
 
             sub_campaigns: List[GPTSLearner] = [
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     print("Optimum      => {}".format(optimum))
 
     plotting.plot_multiple_rewards(cgpts_rewards_per_experiment, optimum, T, _names=["CGPTS allowing 0-budget",
-                                                                                     "CGPTS_forcing not 0-budget"])
+                                                                                     "CGPTS forcing not 0-budget"])
     plotting.plot_multiple_regret(np.array(cgpts_rewards_per_experiment), optimum, names=["CGPTS allowing 0-budget",
                                                                                           "CGPTS_forcing not 0-budget"])
 

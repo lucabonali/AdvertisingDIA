@@ -11,19 +11,19 @@ class GPTSLearner(Learner):
     Gaussian Process Thompson Sampling Learner
     """
 
-    def __init__(self, n_arms, arms, env: BudgetEnvironment):
+    def __init__(self, n_arms, arms, env: BudgetEnvironment, alpha=10):
         super(GPTSLearner, self).__init__(n_arms)
         self.arms = arms
         self.means = np.zeros(n_arms)
         self.sigmas = np.ones(n_arms) * 10
+        self.alpha = alpha
         self.pulled_arms = []
         self.env = env
         self._create_gp()
 
     def _create_gp(self):
-        alpha = 10.0 #10.0
         kernel = C(1.0, (1e-3, 1e3)) * RBF(1, (1e-3, 1e3))
-        self.gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha ** 2, normalize_y=True, n_restarts_optimizer=10)
+        self.gp = GaussianProcessRegressor(kernel=kernel, alpha=self.alpha ** 2, normalize_y=True, n_restarts_optimizer=9)
 
     def update_observations(self, arm_idx, reward):
         super(GPTSLearner, self).update_observations(arm_idx, reward)

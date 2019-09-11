@@ -17,7 +17,7 @@ min_budget = 0
 max_budget = 19
 
 T = 100
-n_experiments = 50
+n_experiments = 5
 # 100 x 6 -> ~ 1.24 hours
 # 100 x 50 -> 11 hours
 
@@ -86,7 +86,5 @@ if __name__ == '__main__':
     print("Best budgets => {}".format(best_budgets))
     print("Optimum      => {}".format(optimum))
 
-    plotting.plot_rewards(cgpts_rewards_per_experiment, optimum, T)
-    plotting.plot_rewards(cgts_rewards_per_experiment, optimum, T)
+    plotting.plot_comparison_rewards(cgpts_rewards_per_experiment, cgts_rewards_per_experiment, optimum, T, _names=["CGPTS", "CGTS"])
     plotting.plot_comparison_regret(np.array(cgpts_rewards_per_experiment), np.array(cgts_rewards_per_experiment), optimum)
-
