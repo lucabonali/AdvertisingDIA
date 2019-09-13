@@ -15,14 +15,14 @@ min_budget = 0
 max_budget = 19
 
 T = 100
-n_experiments = 3
+n_experiments = 100
 # 100 x 100 -> ~ 11 hours
 # 100 x 80 -> 9.84 hours
 
 budgets = np.linspace(min_budget, max_budget, n_arms)
 sigma = 5.0
 
-allow_empty = True
+allow_empty = False
 
 cgpts_rewards_per_experiment = []
 errs_per_experiment = []
@@ -35,7 +35,7 @@ if __name__ == '__main__':
         print('Experiment #{}'.format(e + 1), end='')
         start_time = time.time()
 
-        alpha = 5
+        alpha = 10
         sub_campaigns: List[GPTSLearner] = [
             GPTSLearner(n_arms=n_arms, arms=budgets, alpha=alpha, env=BudgetEnvironment(budgets, sigma, curves.google_agg)),
             GPTSLearner(n_arms=n_arms, arms=budgets, alpha=alpha, env=BudgetEnvironment(budgets, sigma, curves.facebook_agg)),

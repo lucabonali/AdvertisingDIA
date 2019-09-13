@@ -16,7 +16,7 @@ max_budget = 19
 
 n_algorithms = 2
 T = 100
-n_experiments = 10
+n_experiments = 60
 # 100 x 100 -> ~ 11 hours
 # 100 x 80 -> 9.84 hours
 
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     print("Optimum      => {}".format(optimum))
 
     plotting.plot_multiple_rewards(cgpts_rewards_per_experiment, optimum, T, _names=["CGPTS allowing 0-budget",
-                                                                                     "CGPTS forcing not 0-budget"])
+                                                                                     "CGPTS disallowing 0-budget"])
     plotting.plot_multiple_regret(np.array(cgpts_rewards_per_experiment), optimum, names=["CGPTS allowing 0-budget",
-                                                                                          "CGPTS_forcing not 0-budget"])
+                                                                                          "CGPTS disallowing 0-budget"])
 

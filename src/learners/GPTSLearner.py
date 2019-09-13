@@ -23,7 +23,7 @@ class GPTSLearner(Learner):
 
     def _create_gp(self):
         kernel = C(1.0, (1e-3, 1e3)) * RBF(1, (1e-3, 1e3))
-        self.gp = GaussianProcessRegressor(kernel=kernel, alpha=self.alpha ** 2, normalize_y=True, n_restarts_optimizer=9)
+        self.gp = GaussianProcessRegressor(kernel=kernel, alpha=self.alpha ** 2, normalize_y=True, n_restarts_optimizer=10)
 
     def update_observations(self, arm_idx, reward):
         super(GPTSLearner, self).update_observations(arm_idx, reward)
